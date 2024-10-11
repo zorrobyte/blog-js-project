@@ -190,6 +190,7 @@ Here’s a quick overview of the file structure:
 blog-project/
 ├── backend/
 │   ├── server.js        # Main server file
+│   ├── database.sql     # Database setup script
 │   ├── .env             # Environment variables
 │   └── node_modules/    # Node dependencies
 ├── public/
@@ -198,7 +199,7 @@ blog-project/
 │   ├── login.html       # Login page
 │   ├── create-post.html # Create new post page
 │   └── ...              # Other front-end files (CSS, JS, etc.)
-└── database.sql         # Database setup script
+└── ...
 ```
 
 ## API Endpoints
