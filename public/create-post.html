@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container">
+    <h2 class="my-4">Create a New Post</h2>
+    <form id="postForm">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" required>
+        </div>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea class="form-control" id="content" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <div id="postMessage" class="mt-3"></div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('#postForm').submit(function(e) {
+        e.preventDefault();
+        const title = $('#title').val();
+        const content = $('#content').val();
+        const token = localStorage.getItem('token');
+
+        // Check if the user is logged in
+        if (!token) {
+            $('#postMessage').text('You need to log in to create a post.').addClass('text-danger');
+            console.error('Error: No token found. User needs to log in.');
+            return;
+        }
+
+        $.ajax({
+            url: 'http://localhost:5001/api/posts', // Adjust to your server URL
+            type: 'POST',
+            contentType: 'application/json',
+            headers: { 'Authorization': `Bearer ${token}` },
+            data: JSON.stringify({ title, content }),
+            success: function(response) {
+                $('#postMessage').text('Post created successfully! Redirecting...').removeClass('text-danger').addClass('text-success');
+
+                // Redirect to index.html after successful post creation
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 1500); // Delay to show the success message
+            },
+            error: function(xhr) {
+                $('#postMessage').text('Error creating post').removeClass('text-success').addClass('text-danger');
+                console.error('Error creating post:', xhr.responseText || xhr.statusText);
+            }
+        });
+    });
+</script>
+</body>
+</html>

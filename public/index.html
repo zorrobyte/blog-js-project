@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Home</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container">
+    <div class="text-center my-5">
+        <h1>Welcome to My Blog Project</h1>
+        <p class="lead">Join us to share and explore amazing content!</p>
+        <div id="authButtons"></div>
+    </div>
+
+    <h2 class="my-4">Posts</h2>
+    <div id="postsContainer"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId'); // Retrieve the user ID from localStorage
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        if (token) {
+            // Show New Post and Logout buttons if logged in
+            $('#authButtons').html(`
+                <button id="newPostBtn" class="btn btn-success mx-2">New Post</button>
+                <button id="logoutBtn" class="btn btn-danger mx-2">Logout</button>
+            `);
+        } else {
+            // Show Register and Login buttons if not logged in
+            $('#authButtons').html(`
+                <a href="register.html" class="btn btn-primary mx-2">Register</a>
+                <a href="login.html" class="btn btn-secondary mx-2">Login</a>
+            `);
+        }
+
+        // Event handler for New Post button
+        $('#authButtons').on('click', '#newPostBtn', function() {
+            window.location.href = 'create-post.html';
+        });
+
+        // Event handler for Logout button
+        $('#authButtons').on('click', '#logoutBtn', function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            location.reload(); // Reload to update UI
+        });
+
+        // Fetch posts and conditionally render Edit/Delete buttons based on ownership
+        $.ajax({
+            url: '/api/posts',
+            headers: headers,
+            type: 'GET',
+            success: function(data) {
+                if (data.length === 0) {
+                    $('#postsContainer').html('<p>No posts available.</p>');
+                } else {
+                    data.forEach(post => {
+                        const isOwner = post.author_id === Number(userId); // Ensure type-safe comparison
+                        console.log(`Post ID: ${post.id}, Author ID: ${post.author_id}, Logged-in User ID: ${userId}, isOwner: ${isOwner}`);
+
+                        const postHtml = `
+                            <div class="card my-3" data-post-id="${post.id}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${post.title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">By ${post.author}</h6>
+                                    <p class="card-text">${post.content}</p>
+                                    ${isOwner ? `
+                                    <button class="btn btn-warning btn-sm editBtn">Edit</button>
+                                    <button class="btn btn-danger btn-sm deleteBtn">Delete</button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                        $('#postsContainer').append(postHtml);
+                    });
+                }
+            },
+            error: function(err) {
+                console.error('Error fetching posts:', err);
+            }
+        });
+
+        // Event handler for Edit button
+        $('#postsContainer').on('click', '.editBtn', function() {
+            const postId = $(this).closest('.card').data('post-id');
+            const postTitle = $(this).closest('.card').find('.card-title').text();
+            const postContent = $(this).closest('.card').find('.card-text').text();
+
+            const newTitle = prompt("Edit title:", postTitle);
+            const newContent = prompt("Edit content:", postContent);
+
+            if (newTitle && newContent) {
+                $.ajax({
+                    url: `/api/posts/${postId}`,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    data: JSON.stringify({ title: newTitle, content: newContent }),
+                    success: function() {
+                        location.reload(); // Reload to show the updated post
+                    },
+                    error: function(err) {
+                        console.error('Error updating post:', err);
+                    }
+                });
+            }
+        });
+
+        // Event handler for Delete button
+        $('#postsContainer').on('click', '.deleteBtn', function() {
+            const postId = $(this).closest('.card').data('post-id');
+            if (confirm("Are you sure you want to delete this post?")) {
+                $.ajax({
+                    url: `/api/posts/${postId}`,
+                    type: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    success: function() {
+                        location.reload(); // Reload to remove the deleted post
+                    },
+                    error: function(err) {
+                        console.error('Error deleting post:', err);
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
