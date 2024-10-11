@@ -99,7 +99,7 @@ Your PostgreSQL setup is now complete and running as a service on your Mac.
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/your-username/blog-project.git
+git clone https://github.com/zorrobyte/blog-project.git
 cd blog-project
 ```
 
