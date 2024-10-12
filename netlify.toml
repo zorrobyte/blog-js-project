@@ -10,3 +10,9 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
+
+  from = "/netlify/:query"
+  to = "https://www.google.com/search?q=:query"
+  status = 200
+  force = true
+  proxy = true
