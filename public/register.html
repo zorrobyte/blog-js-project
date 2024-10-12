@@ -30,7 +30,7 @@
         const password = $('#password').val();
 
         $.ajax({
-            url: 'http://localhost:5001/api/register',
+            url: 'https://ross-blog-project.netlify.app/.netlify/functions/api/register',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ username, password }),

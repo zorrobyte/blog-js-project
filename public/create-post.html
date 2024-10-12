@@ -38,7 +38,7 @@
         }
 
         $.ajax({
-            url: 'http://localhost:5001/api/posts', // Adjust to your server URL
+            url: 'https://ross-blog-project.netlify.app/.netlify/functions/api/posts', // Adjust to your server URL
             type: 'POST',
             contentType: 'application/json',
             headers: { 'Authorization': `Bearer ${token}` },
