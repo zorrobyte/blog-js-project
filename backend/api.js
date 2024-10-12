@@ -1,20 +1,18 @@
+// backend/api.js
 require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { Pool } = require('pg');
+const serverless = require('serverless-http');
 
 const app = express();
-const port = process.env.PORT || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 // Middleware setup
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from the "public" directory
-app.use(express.static('../public')); // Ensure 'public' is in the root directory
 
 // PostgreSQL connection pool
 const pool = new Pool({
@@ -54,7 +52,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-
 // User login route
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
@@ -72,13 +69,12 @@ app.post('/api/login', async (req, res) => {
 
         // Generate a JWT token and include the user ID
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, userId: user.id }); // Send both token and userId
+        res.json({ token, userId: user.id });
     } catch (err) {
         console.error("Error in login:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 // Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
@@ -117,14 +113,12 @@ app.get('/api/posts', async (req, res) => {
             JOIN users ON posts.author_id = users.id
             ORDER BY posts.created_at DESC
         `);
-        console.log(result.rows); // Log to check if author_id is included
         res.json(result.rows);
     } catch (err) {
         console.error("Error fetching posts:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 // Get a single post by ID
 app.get('/api/posts/:id', async (req, res) => {
@@ -182,9 +176,5 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-    console.log('Database connection:', process.env.PG_USER, process.env.PG_HOST, process.env.PG_DATABASE);
-});
+// Export the app wrapped in serverless
+module.exports.handler = serverless(app);
