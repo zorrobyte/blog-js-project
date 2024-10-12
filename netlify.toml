@@ -11,6 +11,7 @@
   status = 200
   force = true
 
+[[redirects]]
   from = "/netlify/:query"
   to = "https://www.google.com/search?q=:query"
   status = 200
