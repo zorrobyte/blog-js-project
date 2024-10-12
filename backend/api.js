@@ -23,6 +23,11 @@ const pool = new Pool({
     port: process.env.PG_PORT,
 });
 
+//Simple test route to ensure the API is working
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API is working' });
+});
+
 // User registration route
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
