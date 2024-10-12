@@ -1,0 +1,12 @@
+[build]
+  functions = "backend"
+
+[functions]
+  external_node_modules = ["express", "bcrypt", "jsonwebtoken", "cors", "pg", "dotenv", "serverless-http"]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
